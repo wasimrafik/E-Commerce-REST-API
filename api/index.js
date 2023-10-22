@@ -17,7 +17,7 @@ app.listen(PORT, () => {
   console.log("PORT is connected at" + PORT);
 });
 
-mongoose.connect("mongodb://127.0.0.1:27017/NodeJSProject1").then(() => {
+mongoose.connect("mongodb://127.0.0.1:27017/E-Commerce").then(() => {
   console.log("Mongoose Is Connected");
 });
 
