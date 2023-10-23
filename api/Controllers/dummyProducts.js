@@ -1,4 +1,4 @@
-import productModel from "../Models/product.model";
+import dummyProducts from "../Models/dummyProducts";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -35,26 +35,8 @@ const upload = multer({ storage });
 
 export const getProduct = async (req, res) => {
   try {
-    const getProduct = await productModel.aggregate([
-      {
-        $lookup: {
-          from: "categories",
-          localField: "CategoryID",
-          foreignField: "_id",
-          as: "categories",
-        },
-      },
-      { $unwind: "$categories" },
-      {
-        $lookup: {
-          from: "sub_categories",
-          localField: "SubCategoryID",
-          foreignField: "_id",
-          as: "sub_categories",
-        },
-      },
-      { $unwind: "$sub_categories" },
-    ]);
+    const getProduct = await dummyProducts.find();
+    // console.log(getProduct);
     if (getProduct) {
       return res.status(200).json({
         Data: getProduct,
@@ -72,7 +54,7 @@ export const getSingleProduct = async (req, res) => {
   try {
     const id = req.params.product_id;
 
-    const getSingleProduct = await productModel.findOne({ _id: id });
+    const getSingleProduct = await dummyProducts.findOne({ _id: id });
     if (getSingleProduct) {
       return res.status(200).json({
         Data: getSingleProduct,
@@ -99,16 +81,13 @@ export const addProduct = (req, res) => {
       }
 
       const {
-        id,
-        title,
-        description,
-        discountPercentage,
+        Name,
+        CategoryID,
+        SubCategoryID,
+        quantity,
         price,
-        rating,
-        stock,
-        brand,
-        category,
-
+        short_Description,
+        Description,
       } = req.body;
 
       let Thumbnail = null;
@@ -145,16 +124,14 @@ export const addProduct = (req, res) => {
 
       console.log("Files:", req.files);
 
-      const productData = new productModel({
-        id,
-        title,
-        description,
-        discountPercentage,
-        price,
-        rating,
-        stock,
-        brand,
-        category,
+      const productData = new dummyProducts({
+        Name: Name,
+        CategoryID: CategoryID,
+        SubCategoryID: SubCategoryID,
+        quantity: quantity,
+        price: price,
+        short_Description: short_Description,
+        Description: Description,
         Thumbnail: Thumbnail,
         Images: Images.join(","),
       });
@@ -193,17 +170,16 @@ export const updateProduct = async (req, res) => {
 
       const id = req.params.product_id;
 
-      const findProductToUpdate = await productModel.findOne({ _id: id });
+      const findProductToUpdate = await dummyProducts.findOne({ _id: id });
 
       const {
-        title,
-        description,
-        discountPercentage,
+        Name,
+        CategoryID,
+        SubCategoryID,
+        quantity,
         price,
-        rating,
-        stock,
-        brand,
-        category,
+        short_Description,
+        Description,
       } = req.body;
 
       let Thumbnail = findProductToUpdate.Thumbnail;
@@ -240,19 +216,17 @@ export const updateProduct = async (req, res) => {
 
       // console.log("Files:", req.files);
 
-      const updateProduct = await productModel.updateOne(
+      const updateProduct = await dummyProducts.updateOne(
         { _id: id },
         {
           $set: {
-            id,
-            title,
-            description,
-            discountPercentage,
-            price,
-            rating,
-            stock,
-            brand,
-            category,
+            Name: Name,
+            CategoryID: CategoryID,
+            SubCategoryID: SubCategoryID,
+            quantity: quantity,
+            price: price,
+            short_Description: short_Description,
+            Description: Description,
             Thumbnail: Thumbnail,
             Images: Images.join(","),
           },
@@ -283,7 +257,7 @@ export const deleteProduct = async (req, res) => {
   try {
     const id = req.params.product_id;
 
-    const findProductToDelete = await productModel.findOne({ _id: id });
+    const findProductToDelete = await dummyProducts.findOne({ _id: id });
 
     // console.log(findProductToDelete);
 
@@ -301,7 +275,7 @@ export const deleteProduct = async (req, res) => {
         fs.unlinkSync("./uploads/productImage/" + Images[i]);
       }
     }
-    const removeProductData = await productModel.deleteOne({ _id: id });
+    const removeProductData = await dummyProducts.deleteOne({ _id: id });
 
     if (removeProductData.acknowledged) {
       return res.status(200).json({
@@ -315,3 +289,6 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
+
+
+
