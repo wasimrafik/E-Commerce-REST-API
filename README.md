@@ -4,5 +4,5 @@ ReactJS
 Redux and ReduxToolkit
 React Router Dom
 Tailwind CSS 
-React Hooks Forms 
+React Hooks Forms : Input validation on Clinet and server side both
 
