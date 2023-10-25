@@ -7,10 +7,7 @@ const product = {
   name: "Basic Tee 6-Pack",
   price: "$192",
   href: "#",
-  breadcrumbs: [
-    { id: 1, name: "Men", href: "#" },
-    { id: 2, name: "Clothing", href: "#" },
-  ],
+
   images: [
     {
       src: "https://tailwindui.com/img/ecommerce-images/product-page-02-secondary-product-shot.jpg",
@@ -55,7 +52,6 @@ const product = {
   details:
     'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 };
-const reviews = { href: "#", average: 4, totalCount: 117 };
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -64,7 +60,7 @@ function classNames(...classes) {
 const ProductsDetails = () => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
-
+  const 
   return (
     <>
       <div>
@@ -75,7 +71,7 @@ const ProductsDetails = () => {
                 role="list"
                 className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
               >
-                {product.breadcrumbs.map((breadcrumb) => (
+                {product.breadcrumbs && product.breadcrumbs.map((breadcrumb) => (
                   <li key={breadcrumb.id}>
                     <div className="flex items-center">
                       <a
@@ -103,7 +99,7 @@ const ProductsDetails = () => {
                     aria-current="page"
                     className="font-medium text-gray-500 hover:text-gray-600"
                   >
-                    {product.name}
+                    {product.title}
                   </a>
                 </li>
               </ol>
@@ -147,7 +143,7 @@ const ProductsDetails = () => {
             <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
               <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
                 <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                  {product.name}
+                  {product.title}
                 </h1>
               </div>
 
@@ -159,7 +155,7 @@ const ProductsDetails = () => {
                 </p>
 
                 {/* Reviews */}
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <h3 className="sr-only">Reviews</h3>
                   <div className="flex items-center">
                     <div className="flex items-center">
@@ -167,7 +163,7 @@ const ProductsDetails = () => {
                         <StarIcon
                           key={rating}
                           className={classNames(
-                            reviews.average > rating
+                            product.rating > rating
                               ? "text-gray-900"
                               : "text-gray-200",
                             "h-5 w-5 flex-shrink-0"
@@ -176,15 +172,15 @@ const ProductsDetails = () => {
                         />
                       ))}
                     </div>
-                    <p className="sr-only">{reviews.average} out of 5 stars</p>
+                    <p className="sr-only">{product.rating.average} out of 5 stars</p>
                     <a
-                      href={reviews.href}
+                      href={product.rating.href}
                       className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500"
                     >
-                      {reviews.totalCount} reviews
+                      {product.rating.totalCount} reviews
                     </a>
                   </div>
-                </div>
+                </div> */}
 
                 <form className="mt-10">
                   {/* Colors */}

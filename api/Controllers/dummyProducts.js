@@ -49,6 +49,58 @@ export const getProduct = async (req, res) => {
     });
   }
 };
+export const productDetails = async (req, res) => {
+  try {
+
+    const productID = req.params.product_id;
+
+    const getProduct = await dummyProducts.find({_id: productID});
+    // console.log(getProduct);
+    if (getProduct) {
+      return res.status(200).json({
+        Data: getProduct,
+        Message: "Product List Data",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
+
+
+export const getFilterProducts = async (req, res) => {
+  try {
+    const { que } = req.query;
+    const rgx = (pattern) => new RegExp(`.*${pattern}.*`, "i");
+    const searchRgx = rgx(que);
+
+    let queryFilter = {};
+    if (que !== undefined) {
+      queryFilter = {
+        $or: [
+          { brand: { $regex: searchRgx } }, // , $options: "i" I can use this as well
+          { category: { $regex: searchRgx } },
+          // { size: { $regex: searchRgx } },
+        ],
+      };
+    }
+
+    const getProduct = await dummyProducts.find(queryFilter);
+    // console.log(getProduct);
+    if (getProduct) {
+      return res.status(200).json({
+        Data: getProduct,
+        Message: "Product List Data",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
 
 export const getSingleProduct = async (req, res) => {
   try {
@@ -289,6 +341,3 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
-
-
-

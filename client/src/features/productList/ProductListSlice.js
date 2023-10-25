@@ -14,6 +14,15 @@ export const fetchAllProductsAsync = createAsyncThunk(
   }
 );
 
+
+// export const fetchProductsByFilterAsync = createAsyncThunk(
+//   "products/fetchProductsByFilter",
+//   async (filter) => {
+//     const response = await fetchProductsByFilter();
+//     return response.data;
+//   }
+// );
+
 export const ProductSlice = createSlice({
   name: "products",
   initialState,
@@ -31,7 +40,14 @@ export const ProductSlice = createSlice({
       .addCase(fetchAllProductsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.products = action.payload;
-      });
+      })
+      // .addCase(fetchProductsByFilterAsync.pending, (state) => {
+      //   state.status = "loading";
+      // })
+      // .addCase(fetchProductsByFilterAsync.fulfilled, (state, action) => {
+      //   state.status = "idle";
+      //   state.products = action.payload;
+      // });
   },
 });
 
