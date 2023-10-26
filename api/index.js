@@ -8,6 +8,8 @@ import categoryRouter from "./Routers/category.router";
 import cartRouter from "./Routers/cart.router";
 import dummyProducts from "./Routers/dummyProductsRouter";
 import cors from 'cors';
+import cookieParser from 'cookie-parser'
+
 
 const app = express();
 
@@ -15,6 +17,8 @@ const PORT = process.env.PORT || 8001;
 
 app.use(express.json());
 app.use(express.static(__dirname));
+app.use(cookieParser());
+
 
 app.listen(PORT, () => {
   console.log("PORT is connected at" + PORT);

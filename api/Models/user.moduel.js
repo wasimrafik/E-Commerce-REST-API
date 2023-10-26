@@ -3,39 +3,35 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const User = new Schema({
-  First_Name: {
+  name: {
     type: String,
     required: true,
   },
-  Last_Name: {
-    type: String,
-    required: null,
-  },
-  Email: {
+  email: {
     type: String,
     required: true,
   },
-  Password: {
+  password: {
     type: String,
     required: true,
   },
-  Mobile: {
+  mobile: {
     type: Number,
     required: true,
   },
-  Date_Of_Birth: {
+  DOB: {
     type: Number,
     default: null,
   },
-  Gender: {
+  gender: {
     type: String,
     default: null,
   },
-  About: {
+  about: {
     type: String,
     default: null,
   },
-  Avatar: {
+  avatar: {
     type: String,
     default: null,
   },

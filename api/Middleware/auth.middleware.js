@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 
 const auth = async (req, res, next) => {
   try {
-    if (req.headers.authorization) {
-      let token = req.headers.authorization;
-      let decodeToken = jwt.verify(token, "mySecrectKey");
+    if (req.headers.cookies) {
+      let token = req.headers.cookies;
+      let decodeToken = jwt.verify(token, "token");
       if (decodeToken) {
         next();
       } else {

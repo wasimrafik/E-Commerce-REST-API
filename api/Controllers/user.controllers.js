@@ -53,26 +53,25 @@ export const getUser = async (req, res) => {
 
 export const addUser = async (req, res) => {
   try {
-    const imageUpload = upload.single("Avatar");
+    const imageUpload = upload.single("avatar");
     imageUpload(req, res, function (err) {
       if (err) {
         return res.status(500).json({ Message: err.message });
       }
       console.log(req.body);
-      const { First_Name, Last_Name, Email, Password, Mobile } = req.body;
+      const { name, email, password, mobile } = req.body;
 
-      let Avatar = null;
+      let avatar = null;
 
       if (req.file !== undefined) {
-        Avatar = req.file.filename;
+        avatar = req.file.filename;
       }
       const createUserRecord = new userModels({
-        First_Name,
-        Last_Name,
-        Email,
-        Password,
-        Mobile,
-        Avatar,
+        name,
+        email,
+        password,
+        mobile,
+        avatar,
       });
 
       createUserRecord.save();
@@ -93,20 +92,20 @@ export const addUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const imageUpload = upload.single("Avatar");
+    const imageUpload = upload.single("avatar");
     imageUpload(req, res, async function (err) {
       const id = req.params.user_id;
-      const { Date_Of_Birth, Gender, About } = req.body;
+      const { name, email, password, mobile, DOB, gender, about } = req.body;
 
       const findUser = await userModels.findOne({ _id: id });
-      let Avatar = findUser.Avatar;
+      let avatar = findUser.avatar;
 
       if (req.file !== undefined) {
-        Avatar = req.file.filename;
+        avatar = req.file.filename;
 
-        console.log(findUser.Avatar);
-        if (fs.existsSync("./uploads/users/" + findUser.Avatar)) {
-          fs.unlinkSync("./uploads/users/" + findUser.Avatar);
+        console.log(findUser.avatar);
+        if (fs.existsSync("./uploads/users/" + findUser.avatar)) {
+          fs.unlinkSync("./uploads/users/" + findUser.avatar);
         }
       }
 
@@ -114,10 +113,14 @@ export const updateUser = async (req, res) => {
         { _id: id },
         {
           $set: {
-            Date_Of_Birth: Date_Of_Birth,
-            Gender: Gender,
-            About: About,
-            Avatar: Avatar,
+            name,
+            email,
+            password,
+            mobile,
+            DOB,
+            gender,
+            about,
+            avatar,
           },
         }
       );
@@ -141,7 +144,7 @@ export const deleteUser = async (req, res) => {
     const id = req.params.user_id;
 
     const findUser = await userModels.findOne({ _id: id });
-    let image = findUser.Avatar;
+    let image = findUser.avatar;
 
     if (fs.existsSync("./uploads/users/" + image)) {
       fs.unlinkSync("./uploads/users/" + image);
@@ -163,10 +166,10 @@ export const deleteUser = async (req, res) => {
 
 export const signUP = async (req, res) => {
   try {
-    const { First_Name, Last_Name, Email, Password, Mobile } = req.body;
-    console.log(Email);
-    const isEmail = validator.isEmail(Email);
-    const isPassword = validator.isStrongPassword(Password);
+    const { name, email, password, mobile } = req.body;
+    console.log(email);
+    const isEmail = validator.isEmail(email);
+    const isPassword = validator.isStrongPassword(password);
 
     if (!isEmail) {
       return res.status(400).json({
@@ -179,14 +182,14 @@ export const signUP = async (req, res) => {
       });
     }
 
-    const existingUser = await userModels.findOne({ Email: Email });
+    const existingUser = await userModels.findOne({ email: email });
     if (existingUser) {
       return res.status(200).json({
         Message: "User Already Exists ",
       });
     }
 
-    const passToString = Password.toString();
+    const passToString = password.toString();
 
     const encrpytPassword = bcrypt.hashSync(passToString, 10);
 
@@ -196,11 +199,10 @@ export const signUP = async (req, res) => {
     // });
 
     const newUser = await userModels({
-      First_Name,
-      Last_Name,
-      Email,
-      Password: encrpytPassword,
-      Mobile,
+      name,
+      email,
+      password: encrpytPassword,
+      mobile,
       // OTP,
     });
 
@@ -221,10 +223,11 @@ export const signUP = async (req, res) => {
 
 export const logIn = async (req, res) => {
   try {
-    const { Email, Password } = req.body;
+    const { email, password } = req.body;
+    console.log(email, password);
 
-    const isEmail = validator.isEmail(Email);
-    const isPassword = validator.isStrongPassword(Password);
+    const isEmail = validator.isEmail(email);
+    const isPassword = validator.isStrongPassword(password);
 
     if (!isEmail && !isPassword) {
       return res.status(400).json({
@@ -233,37 +236,37 @@ export const logIn = async (req, res) => {
       });
     }
 
-    const checkUser = await userModels.findOne({ Email: Email });
+    const checkUser = await userModels.findOne({ email: email });
     if (!checkUser) {
       return res.status(400).json({
-        Message: "Enter Valid Email Address",
+        Message: "Enter Valid email",
       });
     }
 
-    const passwordCompare = await bcrypt.compare(Password, checkUser.Password);
+    const passwordCompare = await bcrypt.compare(password, checkUser.password);
     if (!passwordCompare) {
       return res.status(400).json({
-        Message: "Invlaid credetianls",
+        Message: "Invlaid credetianls password",
       });
     }
 
     const token = jwt.sign(
       {
         id: checkUser.user_id,
-        Email: checkUser.Email,
+        email: checkUser.email,
       },
-      "mySecrectKey",
+      "token",
       {
         expiresIn: "1h",
       }
     );
 
-    return res.status(200).json({
+    return res.cookie("token", token).json({
       token: token,
-      Message: "Sucessfully Logins",
+      Message: "Sucessfully Login",
     });
   } catch (error) {
-    return res.stauts(500).json({
+    return res.status(500).json({
       Message: error.message,
     });
   }
@@ -271,15 +274,15 @@ export const logIn = async (req, res) => {
 
 export const OTPLogin = async (req, res) => {
   try {
-    const { Mobile, OTP } = req.body;
+    const { mobile, OTP } = req.body;
 
-    if (!Mobile) {
+    if (!mobile) {
       return res.status(400).json({
         Message: "Invalid Mobile Number",
       });
     }
 
-    const findUser = await userModels.findOne({ Mobile: Mobile });
+    const findUser = await userModels.findOne({ mobile: mobile });
 
     if (!findUser) {
       return res.status(400).json({
@@ -296,7 +299,7 @@ export const OTPLogin = async (req, res) => {
     const token = jwt.sign(
       {
         id: findUser.id,
-        email: findUser.Email,
+        email: findUser.email,
       },
       "mySecrectKey",
       {
@@ -317,13 +320,13 @@ export const OTPLogin = async (req, res) => {
 
 export const generateOTP = async (req, res) => {
   try {
-    const { Mobile } = req.body;
+    const { mobile } = req.body;
 
-    const findUserData = await userModels.findOne({ Mobile: Mobile });
+    const findUserData = await userModels.findOne({ mobile: mobile });
 
     let OTP;
 
-    if (findUserData.Mobile == Mobile) {
+    if (findUserData.mobile == mobile) {
       OTP = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
@@ -338,7 +341,7 @@ export const generateOTP = async (req, res) => {
     }
 
     const getOTP = await userModels.updateOne(
-      { Mobile: Mobile },
+      { mobile: mobile },
       {
         $set: {
           OTP: OTP,

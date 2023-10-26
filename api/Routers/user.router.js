@@ -18,8 +18,8 @@ userRouter.get("/get-user", getUser);
 userRouter.post("/add-user", addUser);
 userRouter.put("/update-user/:user_id", updateUser);
 userRouter.delete("/delete-user/:user_id", deleteUser);
-userRouter.post("/signUP", signUP);
-userRouter.get("/logIn", logIn);
+userRouter.post("/signUp", signUP);
+userRouter.post("/logIn", logIn);
 userRouter.get("/OTPLogin", OTPLogin);
 userRouter.patch("/generateOTP", generateOTP);
 

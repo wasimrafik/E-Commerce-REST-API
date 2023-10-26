@@ -1,22 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchCount } from "./counterAPI";
-import LoginPage from "../../Components/login/LoginPage";
+import { createUser, getLoginUserAsync } from "./authAPI";
 
 const initialState = {
-  value: 0,
-  status: "idle",
+  user: {},
+  isLoading: false,
+  success: null,
+  error: null,
 };
 
-export const incrementAsync = createAsyncThunk(
-  "counter/fetchCount",
-  async (amount) => {
-    const response = await fetchCount(amount);
+
+export const createUserAsync = createAsyncThunk(
+  "user/createUser",
+  async (userData) => {
+    const response = await createUser(userData);
     return response.data;
   }
 );
 
 export const LoginPages = createSlice({
-  name: "counter",
+  name: "user",
   initialState,
   reducers: {
     increment: (state) => {
@@ -26,18 +28,30 @@ export const LoginPages = createSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
+      .addCase(createUserAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
-        state.status = "idle";
-        state.value += action.payload;
+      .addCase(createUserAsync.fulfilled, (state, action) => {
+        state.status = "sucess";
+        state.user = action.payload;
+      })
+      .addCase(getLoginUserAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getLoginUserAsync.fulfilled, (state, action) => {
+        state.status = "sucess";
+        state.user = action.payload;
+      })
+      .addCase(getLoginUserAsync.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error;
       });
   },
 });
 
-export const { increment } = LoginPage.actions;
 
-export const selectCount = (state) => state.counter.value;
+export const selectLoggedInUser = (state) => state.auth.user;
+export const selectError = (state) => state.auth.error
+// export const { increment } = LoginPage.actions;
 
 export default LoginPages.reducer;
