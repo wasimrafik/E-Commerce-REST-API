@@ -2,17 +2,14 @@ import React from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectLoggedInUser,
-  selectError,
-} from "../../features/auth/authSlice";
-
-import {getLoginUserAsync} from '../../features/auth/authAPI'
+import { selectLoggedInUser, selectError } from "../../features/auth/authSlice";
+import Cookies from 'js-cookie';
+import { getLoginUserAsync } from "../../features/auth/authAPI";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
-  
+  const navigate = useNavigate();
+
   const error = useSelector(selectError);
   const {
     register,
@@ -20,12 +17,15 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm();
 
-  
   const user = useSelector(selectLoggedInUser);
-  console.log(user);
+  console.log(user.token);
+  if(user.token){
+     const token = user.token;
+    Cookies.set("token", token);
+  }
   return (
     <>
-     
+      {user.token && ( <Navigate to="/home" />)} 
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
@@ -43,10 +43,7 @@ const LoginPage = () => {
             noValidate
             className="space-y-6"
             onSubmit={handleSubmit((data) => {
-             const response = dispatch(getLoginUserAsync(data))
-              if(getLoginUserAsync.fulfilled.match(response)){
-                 <navigate to='/home' />
-              }
+              dispatch(getLoginUserAsync(data));
             })}
           >
             <div>
@@ -70,7 +67,6 @@ const LoginPage = () => {
                   <p className="text-red-500">{errors.email.message}</p>
                 )}
               </div>
-              
             </div>
 
             <div>
@@ -105,9 +101,7 @@ const LoginPage = () => {
                     <p className="text-red-500">{errors.password.message}</p>
                   )}
                 </div>
-                {error && (
-                <p className="text-red-500">{error.message}</p>
-              )}
+                {error && <p className="text-red-500">{error.message}</p>}
               </div>
             </div>
 
