@@ -1,26 +1,28 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-export function createUser(userData) {
-  return new Promise(async (resolve) => {
+
+export const createUserAsync = createAsyncThunk(
+  "createUser",
+  async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8001/user/signUp",
+      const { data } = await axios.post(
+        "/user/signUp",
         userData
       );
-      resolve({ response });
+      return data;
     } catch (error) {
-      resolve({ error: error.response.data });
+      return rejectWithValue(error);
     }
-  });
-}
+  }
+);
 
 export const getLoginUserAsync = createAsyncThunk(
   "getLoginUser",
   async (loginData, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        "http://localhost:8001/user/logIn",
+        "/user/logIn",
         loginData
       );
       return data;

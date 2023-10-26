@@ -1,12 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector} from 'react-redux'
-import {selectLoggedInUser,createUserAsync} from '../../features/auth/authSlice'
+import {selectLoggedInUser} from '../../features/auth/authSlice'
+import {createUserAsync} from '../../features/auth/authAPI'
 
 const SignupPage = () => {
 
   const dispatch = useDispatch()
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -15,6 +18,7 @@ const SignupPage = () => {
 
   const user = useSelector(selectLoggedInUser)
   console.log(errors);
+
   return (
     <>
     {user?.email}
@@ -34,8 +38,9 @@ const SignupPage = () => {
           <form
             noValidate
             className="space-y-6"
-            onSubmit={handleSubmit((data) => {
-              dispatch(createUserAsync(data))
+            onSubmit={handleSubmit(async(data) => {
+              await dispatch(createUserAsync(data));
+              {navigate("/login")}
             })}
           >
             <div>

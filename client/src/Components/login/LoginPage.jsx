@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoggedInUser, selectError } from "../../features/auth/authSlice";
@@ -25,7 +25,7 @@ const LoginPage = () => {
   }
   return (
     <>
-      {user.token && ( <Navigate to="/home" />)} 
+      {user.token && ( navigate('/home'))} 
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img

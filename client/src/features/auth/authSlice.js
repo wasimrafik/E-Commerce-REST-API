@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createUser, getLoginUserAsync } from "./authAPI";
+import { createSlice } from "@reduxjs/toolkit";
+import { createUserAsync, getLoginUserAsync } from "./authAPI";
 
 const initialState = {
   user: {},
@@ -9,23 +9,10 @@ const initialState = {
 };
 
 
-export const createUserAsync = createAsyncThunk(
-  "user/createUser",
-  async (userData) => {
-    const response = await createUser(userData);
-    return response.data;
-  }
-);
-
 export const LoginPages = createSlice({
   name: "user",
   initialState,
-  reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
-  },
-
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(createUserAsync.pending, (state) => {
@@ -49,9 +36,8 @@ export const LoginPages = createSlice({
   },
 });
 
-
 export const selectLoggedInUser = (state) => state.auth.user;
-export const selectError = (state) => state.auth.error
+export const selectError = (state) => state.auth.error;
 // export const { increment } = LoginPage.actions;
 
 export default LoginPages.reducer;
