@@ -14,8 +14,8 @@ import PublicRoutes from "./Components/routes/publicRoutes/PublicRoutes";
 
 
 
-// axios.defaults.baseURL = "http://localhost:8001/";
-// axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "http://localhost:8001/";
+axios.defaults.withCredentials = true;
 
 function App() {
   return (
