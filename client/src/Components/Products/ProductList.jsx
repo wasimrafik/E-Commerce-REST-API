@@ -14,8 +14,8 @@ import {
 import { Link, useParams } from "react-router-dom";
 import {
   selectAllProducts,
-  fetchAllProductsAsync,
 } from "../../features/productList/ProductListSlice";
+import {fetchAllProductsAsync} from '../../features/productList/ProductListAPI'
 import axios from "axios";
 import Pagination from "../pagination/Pagination";
 
@@ -71,6 +71,7 @@ function classNames(...classes) {
 
 export default function ProductList() {
   const products = useSelector(selectAllProducts);
+  console.log(products);
   const dispatch = useDispatch();
   let { filterParams } = useParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);

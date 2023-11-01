@@ -1,18 +1,18 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchAllProducts } from "./ProductListAPI";
+import { createSlice } from "@reduxjs/toolkit";
+import {  fetchAllProductsAsync } from "./ProductListAPI";
 
 const initialState = {
   products: [],
   status: "idle",
 };
 
-export const fetchAllProductsAsync = createAsyncThunk(
-  "products/fetchAllProducts",
-  async () => {
-    const response = await fetchAllProducts();
-    return response.data;
-  }
-);
+// export const fetchAllProductsAsync = createAsyncThunk(
+//   "products/fetchAllProducts",
+//   async () => {
+//     const response = await fetchAllProducts();
+//     return response.data;
+//   }
+// );
 
 
 // export const fetchProductsByFilterAsync = createAsyncThunk(
@@ -27,9 +27,6 @@ export const ProductSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
   },
 
   extraReducers: (builder) => {
@@ -51,7 +48,7 @@ export const ProductSlice = createSlice({
   },
 });
 
-export const { increment } = ProductSlice.actions;
+// export const { increment } = ProductSlice.actions;
 
 export const selectAllProducts = (state) => state.products.products;
 
