@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {  fetchAllProductsAsync } from "./ProductListAPI";
+import {  fetchAllProductsAsync, fetchSingleProduct } from "./ProductListAPI";
 
 const initialState = {
   products: [],
@@ -38,6 +38,13 @@ export const ProductSlice = createSlice({
         state.status = "idle";
         state.products = action.payload;
       })
+      .addCase(fetchSingleProduct.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchSingleProduct.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.products = action.payload;
+      })
       // .addCase(fetchProductsByFilterAsync.pending, (state) => {
       //   state.status = "loading";
       // })
@@ -52,4 +59,5 @@ export const ProductSlice = createSlice({
 
 export const selectAllProducts = (state) => state.products.products;
 
+export const selectSingleProducts = (state) => state.products
 export default ProductSlice.reducer;

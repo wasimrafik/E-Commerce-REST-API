@@ -31,3 +31,18 @@ export const getLoginUserAsync = createAsyncThunk(
     }
   }
 );
+
+export const getUserAsync = createAsyncThunk(
+  "getUser",
+  async (getUser, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        "/user/getUser",
+        getUser
+      );
+      return data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);

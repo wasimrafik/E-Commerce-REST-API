@@ -37,7 +37,10 @@ const upload = multer({ storage });
 
 export const getUser = async (req, res) => {
   try {
-    const user = await userModels.find();
+
+    const id = req.params.userID;
+    
+    const user = await userModels.findOne({_id: id});
     if (user) {
       return res.status(200).json({
         data: user,
@@ -53,25 +56,19 @@ export const getUser = async (req, res) => {
 
 export const addUser = async (req, res) => {
   try {
-    const imageUpload = upload.single("avatar");
-    imageUpload(req, res, function (err) {
-      if (err) {
-        return res.status(500).json({ Message: err.message });
-      }
+
       console.log(req.body);
       const { name, email, password, mobile } = req.body;
 
-      let avatar = null;
+      const passToString = password.toString();
 
-      if (req.file !== undefined) {
-        avatar = req.file.filename;
-      }
+    const encrpytPassword = bcrypt.hashSync(passToString, 10);
+
       const createUserRecord = new userModels({
-        name,
+        name: name,
         email,
-        password,
+        password: encrpytPassword,
         mobile,
-        avatar,
       });
 
       createUserRecord.save();
@@ -82,7 +79,6 @@ export const addUser = async (req, res) => {
           Message: "Data Created Sucessfully",
         });
       }
-    });
   } catch (error) {
     return res.status(500).json({
       Message: error.message,
@@ -95,7 +91,7 @@ export const updateUser = async (req, res) => {
     const imageUpload = upload.single("avatar");
     imageUpload(req, res, async function (err) {
       const id = req.params.user_id;
-      const { name, email, password, mobile, DOB, gender, about } = req.body;
+      const { name, email, password, mobile } = req.body;
 
       const findUser = await userModels.findOne({ _id: id });
       let avatar = findUser.avatar;
@@ -109,17 +105,18 @@ export const updateUser = async (req, res) => {
         }
       }
 
+      const passToString = password.toString();
+
+    const encrpytPassword = bcrypt.hashSync(passToString, 10);
+
       const userUpdateRecord = await userModels.updateOne(
         { _id: id },
         {
           $set: {
             name,
             email,
-            password,
+            password: encrpytPassword,
             mobile,
-            DOB,
-            gender,
-            about,
             avatar,
           },
         }
@@ -260,8 +257,9 @@ export const logIn = async (req, res) => {
         expiresIn: "1h",
       }
     );
-
+      console.log(checkUser);
     return res.cookie("token", token).json({
+      Data: checkUser._id,
       token: token,
       Message: "Sucessfully Login",
     });
@@ -272,92 +270,92 @@ export const logIn = async (req, res) => {
   }
 };
 
-export const OTPLogin = async (req, res) => {
-  try {
-    const { mobile, OTP } = req.body;
+// export const OTPLogin = async (req, res) => {
+//   try {
+//     const { mobile  } = req.body;
 
-    if (!mobile) {
-      return res.status(400).json({
-        Message: "Invalid Mobile Number",
-      });
-    }
+//     if (!mobile) {
+//       return res.status(400).json({
+//         Message: "Invalid Mobile Number",
+//       });
+//     }
 
-    const findUser = await userModels.findOne({ mobile: mobile });
+//     const findUser = await userModels.findOne({ mobile: mobile });
 
-    if (!findUser) {
-      return res.status(400).json({
-        Message: "Contact Do Not Exists Please Create An Account",
-      });
-    }
+//     if (!findUser) {
+//       return res.status(400).json({
+//         Message: "Contact Do Not Exists Please Create An Account",
+//       });
+//     }
 
-    if (findUser.OTP !== OTP) {
-      return res.status(400).json({
-        Message: "Incorrect OTP",
-      });
-    }
+//     if (findUser.OTP !== OTP) {
+//       return res.status(400).json({
+//         Message: "Incorrect OTP",
+//       });
+//     }
 
-    const token = jwt.sign(
-      {
-        id: findUser.id,
-        email: findUser.email,
-      },
-      "mySecrectKey",
-      {
-        expiresIn: "1h",
-      }
-    );
+//     const token = jwt.sign(
+//       {
+//         id: findUser.id,
+//         email: findUser.email,
+//       },
+//       "mySecrectKey",
+//       {
+//         expiresIn: "1h",
+//       }
+//     );
 
-    return res.status(200).json({
-      Message: "Login Sucessfully",
-      token: token,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      Message: error.message,
-    });
-  }
-};
+//     return res.status(200).json({
+//       Message: "Login Sucessfully",
+//       token: token,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       Message: error.message,
+//     });
+//   }
+// };
 
-export const generateOTP = async (req, res) => {
-  try {
-    const { mobile } = req.body;
+// export const generateOTP = async (req, res) => {
+//   try {
+//     const { mobile } = req.body;
 
-    const findUserData = await userModels.findOne({ mobile: mobile });
+//     const findUserData = await userModels.findOne({ mobile: mobile });
 
-    let OTP;
+//     let OTP;
 
-    if (findUserData.mobile == mobile) {
-      OTP = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        specialChars: false,
-      });
-      console.log(OTP);
-    }
+//     if (findUserData.mobile == mobile) {
+//       OTP = otpGenerator.generate(6, {
+//         upperCaseAlphabets: false,
+//         specialChars: false,
+//       });
+//       console.log(OTP);
+//     }
 
-    if (!findUserData) {
-      return res.status(400).json({
-        Message: "Invalid Number",
-      });
-    }
+//     if (!findUserData) {
+//       return res.status(400).json({
+//         Message: "Invalid Number",
+//       });
+//     }
 
-    const getOTP = await userModels.updateOne(
-      { mobile: mobile },
-      {
-        $set: {
-          OTP: OTP,
-        },
-      }
-    );
+//     const getOTP = await userModels.updateOne(
+//       { mobile: mobile },
+//       {
+//         $set: {
+//           OTP: OTP,
+//         },
+//       }
+//     );
 
-    if (getOTP) {
-      return res.status(200).json({
-        Message: "OTP Generated Sucessufully",
-        Data: OTP,
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      Message: error.message,
-    });
-  }
-};
+//     if (getOTP) {
+//       return res.status(200).json({
+//         Message: "OTP Generated Sucessufully",
+//         Data: OTP,
+//       });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({
+//       Message: error.message,
+//     });
+//   }
+// };

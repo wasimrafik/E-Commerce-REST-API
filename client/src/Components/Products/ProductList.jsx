@@ -11,11 +11,15 @@ import {
   StarIcon,
 } from "@heroicons/react/20/solid";
 
-import { Link, useParams } from "react-router-dom";
 import {
-  selectAllProducts,
-} from "../../features/productList/ProductListSlice";
-import {fetchAllProductsAsync} from '../../features/productList/ProductListAPI'
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { selectAllProducts } from "../../features/productList/ProductListSlice";
+import { fetchAllProductsAsync, fetchSingleProduct } from "../../features/productList/ProductListAPI";
 import axios from "axios";
 import Pagination from "../pagination/Pagination";
 
@@ -75,27 +79,56 @@ export default function ProductList() {
   const dispatch = useDispatch();
   let { filterParams } = useParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
   const [filterData, setFilterData] = useState([]);
   const [searchParams, setSearchParams] = useState([]);
   const [checked, setChecked] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     dispatch(fetchAllProductsAsync());
   }, [dispatch, filterParams]);
 
   const handelFilter = (e, section, option) => {
     // e.preventDefault()
-    console.log(section.id, option.value, checked);
 
-    setSearchParams(option.value);
-    if (e.target.checked) {
-      filterParams = searchParams;
-      console.log(searchParams, filterParams);
-      axios.get("product/getFilterProducts?que=" + filterParams).then((res) => {
-        setFilterData(res.data.Data);
-      });
+    // console.log(section.id, option.value, checked);
+
+    // setSearchParams(option.value);
+    // if (e.target.checked) {
+    //   filterParams = searchParams;
+    //   console.log(searchParams, filterParams);
+    //   axios.get("product/getFilterProducts?que=" + filterParams).then((res) => {
+    //     setFilterData(res.data.Data);
+    //   });
+    // }
+    // setChecked(!checked);
+
+    const filterParams = new URLSearchParams(location.search);
+
+    let filterValue = filterParams.getAll(section.id);
+
+    if (
+      filterValue.length > 0 &&
+      filterValue[0].split(",").includes(option.value)
+    ) {
+      filterValue = filterValue[0]
+        .split(",")
+        .filter((item) => item !== option.value);
+
+      if (filterValue.length === 0) {
+        filterParams.delete(section.id);
+      }
+    } else {
+      filterValue.push(option.value);
     }
-    setChecked(!checked);
+
+    if (filterValue.length > 0) {
+      filterParams.set(section.id, filterValue.join(","));
+    }
+    const query = filterParams.toString();
+
+    navigate({ search: `?${query}` });
   };
 
   const handelSort = (e, option) => {
@@ -109,10 +142,22 @@ export default function ProductList() {
       });
   };
 
+
   const handlerID = (product) => {
-    filterParams = product._id;
-    console.log(filterParams);
+    const productID = product._id;
+    console.log(productID);
+    // axios.get('/product/getSingleProduct/'+filterParams)
+    // .then((res) => {
+    //  const singleProduct = res.data.Data;
+    //  console.log(singleProduct);
+
+      // navigate()
+    // })
+    dispatch(fetchSingleProduct(productID))
   };
+  console.log("filterParams:", filterParams);
+
+
   return (
     <div>
       <div>
@@ -386,59 +431,8 @@ export default function ProductList() {
                         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                           {filterData.length > 0 && checked === true
                             ? filterData.map((product) => (
-                                // <Link to={`/productDetails/${product._id}`}>
-                                <Link to={`/productDetails`}>
-                                  <div
-                                    key={product.id}
-                                    className="group relative border-solid border-2 border-gray-200 p-2"
-                                  >
-                                    <div className="min-h-60 aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-60">
-                                      <img
-                                        src={product.thumbnail}
-                                        alt={product.title}
-                                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                                      />
-                                    </div>
-                                    <div className="mt-4 flex justify-between">
-                                      <div>
-                                        <h3 className="text-sm text-gray-700">
-                                          <a href={product.thumbnail}>
-                                            <span
-                                              aria-hidden="true"
-                                              className="absolute inset-0"
-                                            />
-                                            {product.title}
-                                          </a>
-                                        </h3>
-                                        <p className="mt-1 text-sm text-gray-500">
-                                          <StarIcon className="w-6 h-6 inline" />{" "}
-                                          <span className="align-bottom">
-                                            {product.rating}
-                                          </span>
-                                        </p>
-                                      </div>
-                                      <div className="">
-                                        <p className="text-sm font-medium line-through text-gray-500">
-                                          $ {product.price}
-                                        </p>
-                                        <p className="text-sm font-medium text-gray-900">
-                                          ${" "}
-                                          {Math.round(
-                                            product.price *
-                                              (1 -
-                                                product.discountPercentage /
-                                                  100)
-                                          )}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </Link>
-                              ))
-                            : products.map((product) => (
-                                // <Link to={`/productDetails/${product._id}`}>
-                                <Link to={`/productDetails`}>
-                                  <div
+                                <Link to={`/product/getSingleProduct/${product._id}`}>
+                                  <button
                                     key={product.id}
                                     onClick={(e) => handlerID(product)}
                                     className="group relative border-solid border-2 border-gray-200 p-2"
@@ -483,7 +477,65 @@ export default function ProductList() {
                                         </p>
                                       </div>
                                     </div>
-                                  </div>
+                                  </button>
+                                </Link>
+                              ))
+                            : products.map((product) => (
+                                <Link to={`/product/getSingleProduct/${product._id}`}>
+                                  <button
+                                    key={product.id}
+                                    onClick={(e) => handlerID(product)}
+                                    className="group relative border-solid border-2 border-gray-200 p-2 max-h-max   text-start  truncate overflow-hidden"
+                                  >
+                                    <div className="min-h-60  aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-60">
+                                      <img
+                                        src={product.imageUrl}
+                                        alt={product.title}
+                                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                                      />
+                                    </div>
+                                    <div className="mt-4 flex justify-evenly">
+                                      <div className="px-3">
+                                        <h3 className="text-sm text-gray-700">
+                                          <div></div>
+                                          <a
+                                            className="m-2 text-start"
+                                            href={product.thumbnail}
+                                          >
+                                            <span
+                                              aria-hidden="true"
+                                              className="absolute inset-0"
+                                            />
+                                            {product.title}
+                                          </a>
+                                        </h3>
+                                      </div>
+                                    </div>
+
+                                    <div className="mt-4 flex justify-between">
+                                      <div>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                          <StarIcon className="w-6 h-6 inline" />{" "}
+                                          <span className="align-bottom">
+                                            {product.rating}
+                                          </span>
+                                        </p>
+                                      </div>
+                                      <div className="">
+                                        <p className="text-sm font-medium line-through text-gray-500">
+                                          $ {product.price}
+                                        </p>
+                                        <p className="text-sm font-medium text-gray-900">
+                                          ${" "}
+                                          {Math.round(
+                                            product.price *
+                                              (1 -
+                                                product.discountedPrice / 100)
+                                          )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </button>
                                 </Link>
                               ))}
                         </div>

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const User = new Schema({
+const users = new Schema({
   name: {
     type: String,
     required: true,
@@ -19,23 +19,23 @@ const User = new Schema({
     type: Number,
     required: true,
   },
-  DOB: {
-    type: Number,
-    default: null,
-  },
-  gender: {
+  role: {
     type: String,
-    default: null,
+    default: "customer",
   },
-  about: {
-    type: String,
-    default: null,
-  },
+  address: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "addresses",
+    },
+  ],
+  paymentInfo: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment",
+    },
+  ],
   avatar: {
-    type: String,
-    default: null,
-  },
-  OTP: {
     type: String,
     default: null,
   },
@@ -49,4 +49,4 @@ const User = new Schema({
   },
 });
 
-export default mongoose.model("User", User);
+export default mongoose.model("users", users);

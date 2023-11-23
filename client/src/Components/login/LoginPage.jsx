@@ -18,7 +18,7 @@ const LoginPage = () => {
   } = useForm();
 
   const user = useSelector(selectLoggedInUser);
-  console.log(user.token);
+  console.log(user);
   if(user.token){
      const token = user.token;
     Cookies.set("token", token);

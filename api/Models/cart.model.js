@@ -2,29 +2,28 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const Cart = new Schema({
-  userID: {
+const cart = new Schema({
+  user: {
     type: Schema.Types.ObjectId,
-    required: true,
+    ref:"users"
   },
-  productID: {
+  products: {
     type: Schema.Types.ObjectId,
-    required: true,
+    ref: "products",
   },
-  name: {
+  size: {
     type: String,
-    required: true,
+    // required: true,
+    default: 0,
   },
-  price: {
-    type: Number,
-    required: true,
+  color: {
+    type: String,
+    // required: true,
+    default: 0,
   },
   quantity: {
     type: Number,
-    required: true,
-  },
-  image: {
-    type: String,
+    default: 0
   },
   createdAt: {
     type: Date,
@@ -32,4 +31,4 @@ const Cart = new Schema({
   },
 });
 
-export default mongoose.model("Cart", Cart);
+export default mongoose.model("cart", cart);

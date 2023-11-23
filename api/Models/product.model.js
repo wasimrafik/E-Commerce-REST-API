@@ -1,55 +1,63 @@
 import mongoose from "mongoose";
-import Category from "../Models/category.model";
-import Sub_categories from "../Models/sub_categories.model";
 const Schema = mongoose.Schema;
 
-const Product = new Schema({
-  Name: {
+const products = new Schema({
+  title: {
     type: String,
     required: true,
   },
-  CategoryID: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: Category,
-  },
-  SubCategoryID: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: Sub_categories,
-  },
-  quantity: {
-    type: Number,
+  discription: {
+    type: String,
     required: true,
   },
   price: {
     type: Number,
     required: true,
   },
-  short_Description: {
+  discountedPrice: {
+    type: Number,
+  },
+  discountedPercent: {
+    type: Number,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  brand: {
     type: String,
     required: true,
   },
-  Description: {
-    type: String,
-    required: true,
-  },
-  Thumbnail: {
+  color: [{
+    name:{type:String},
+    quantity:{type:Number}
+  }],
+  size: [{
+    name:{type:String},
+    quantity:{type:Number}
+  }],
+
+  imageUrl: {
     type: String,
     default: null,
   },
-  Images: {
+  Images: [{
     type: String,
     default: null,
-  },
+  }],
   Status: {
     type: String,
     default: 1,
   },
+  Category: {
+    type: Schema.Types.ObjectId,
+    ref: 'categories',  
+  },
+  
   createdAt: {
     type: Date,
     default: new Date(),
   },
 });
 
-export default mongoose.model("Product", Product);
+export default mongoose.model("products", products);

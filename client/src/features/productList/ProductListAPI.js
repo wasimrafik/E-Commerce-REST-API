@@ -16,8 +16,20 @@ export const fetchAllProductsAsync = createAsyncThunk(
   async ( ) => {
     try {
       const response = await axios.get("http://localhost:8001/product/getProduct");
-      console.log(response);  
+      console.log(response.data);  
       return response.data.Data
+    } catch (error) {
+      return (error)
+    }
+  }
+)
+
+export const fetchSingleProduct = createAsyncThunk(
+  "fetchSingleProducts",
+  async (productID) => {
+    try {
+    const response = await axios.get(`http://localhost:8001/product/getSingleProduct/${productID}`)  
+    return response.data.Data;
     } catch (error) {
       return (error)
     }

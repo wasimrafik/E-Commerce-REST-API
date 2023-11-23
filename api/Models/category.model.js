@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const Category = new Schema({
+const categories = new Schema({
   name: {
     type: String,
     required: true,
+    maxlength: 50,
   },
-  image: {
-    type: String,
-    default: null,
+  parentCategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'categories'
+  },
+  level: {
+    type: Number,
   },
   createdAt: {
     type: Date,
@@ -17,4 +21,4 @@ const Category = new Schema({
   },
 });
 
-export default mongoose.model("Category", Category);
+export default mongoose.model("categories", categories);

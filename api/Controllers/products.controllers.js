@@ -35,26 +35,7 @@ const upload = multer({ storage });
 
 export const getProduct = async (req, res) => {
   try {
-    const getProduct = await productModel.aggregate([
-      {
-        $lookup: {
-          from: "categories",
-          localField: "CategoryID",
-          foreignField: "_id",
-          as: "categories",
-        },
-      },
-      { $unwind: "$categories" },
-      {
-        $lookup: {
-          from: "sub_categories",
-          localField: "SubCategoryID",
-          foreignField: "_id",
-          as: "sub_categories",
-        },
-      },
-      { $unwind: "$sub_categories" },
-    ]);
+    const getProduct = await productModel.find()
     if (getProduct) {
       return res.status(200).json({
         Data: getProduct,
@@ -70,7 +51,7 @@ export const getProduct = async (req, res) => {
 
 export const getSingleProduct = async (req, res) => {
   try {
-    const id = req.params.product_id;
+    const id = req.params.productID;
 
     const getSingleProduct = await productModel.findOne({ _id: id });
     if (getSingleProduct) {
@@ -89,7 +70,7 @@ export const getSingleProduct = async (req, res) => {
 export const addProduct = (req, res) => {
   try {
     const uploadImage = upload.fields([
-      { name: "Thumbnail", maxCount: 1 },
+      { name: "imageUrl", maxCount: 1 },
       { name: "Images", maxCount: 4 },
     ]);
     console.log(uploadImage);
@@ -99,26 +80,26 @@ export const addProduct = (req, res) => {
       }
 
       const {
-        id,
         title,
-        description,
-        discountPercentage,
+        discription,
+        discountedPrice,
         price,
-        rating,
-        stock,
+        discountedPercent,
+        quantity,
         brand,
-        category,
-
+        color,
+        size,
+        Category,
       } = req.body;
 
-      let Thumbnail = null;
-      if (req.files && req.files["Thumbnail"]) {
-        Thumbnail = req.files["Thumbnail"][0].filename;
+      let imageUrl = null;
+      if (req.files && req.files["imageUrl"]) {
+        imageUrl = req.files["imageUrl"][0].filename;
       }
 
       console.log(req.files);
-      console.log(req.files["Thumbnail"]);
-      console.log((Thumbnail = req.files["Thumbnail"][0].filename));
+      console.log(req.files["imageUrl"]);
+      console.log((imageUrl = req.files["imageUrl"][0].filename));
 
       let Images = [];
 
@@ -146,16 +127,17 @@ export const addProduct = (req, res) => {
       console.log("Files:", req.files);
 
       const productData = new productModel({
-        id,
         title,
-        description,
-        discountPercentage,
+        discription,
+        discountedPrice,
         price,
-        rating,
-        stock,
+        discountedPercent,
+        quantity,
         brand,
-        category,
-        Thumbnail: Thumbnail,
+        color,
+        size,
+        Category,
+        Thumbnail: imageUrl,
         Images: Images.join(","),
       });
 
@@ -182,7 +164,7 @@ export const addProduct = (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const imageUpload = upload.fields([
-      { name: "Thumbnail", maxCount: 1 },
+      { name: "imageUrl", maxCount: 1 },
       { name: "Images", maxCount: 4 },
     ]);
 
@@ -191,31 +173,33 @@ export const updateProduct = async (req, res) => {
         return res.status(500).json({ message: err.message });
       }
 
-      const id = req.params.product_id;
+      const id = req.params.productID;
 
       const findProductToUpdate = await productModel.findOne({ _id: id });
 
       const {
         title,
-        description,
-        discountPercentage,
+        discription,
+        discountedPrice,
         price,
-        rating,
-        stock,
+        discountedPercent,
+        quantity,
         brand,
-        category,
+        color,
+        size,
+        Category,
       } = req.body;
 
-      let Thumbnail = findProductToUpdate.Thumbnail;
-      if (req.files && req.files["Thumbnail"]) {
-        Thumbnail = req.files["Thumbnail"][0].filename;
+      let imageUrl = findProductToUpdate.imageUrl;
+      if (req.files && req.files["imageUrl"]) {
+        imageUrl = req.files["imageUrl"][0].filename;
         if (
           fs.existsSync(
-            "./uploads/productImage/" + findProductToUpdate.Thumbnail
+            "./uploads/productImage/" + findProductToUpdate.imageUrl
           )
         ) {
           fs.unlinkSync(
-            "./uploads/productImage/" + findProductToUpdate.Thumbnail
+            "./uploads/productImage/" + findProductToUpdate.imageUrl
           );
         }
       }
@@ -244,16 +228,17 @@ export const updateProduct = async (req, res) => {
         { _id: id },
         {
           $set: {
-            id,
             title,
-            description,
-            discountPercentage,
+            discription,
+            discountedPrice,
             price,
-            rating,
-            stock,
+            discountedPercent,
+            quantity,
             brand,
-            category,
-            Thumbnail: Thumbnail,
+            color,
+            size,
+            Category,
+            Thumbnail: imageUrl,
             Images: Images.join(","),
           },
         }
@@ -281,7 +266,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    const id = req.params.product_id;
+    const id = req.params.productID;
 
     const findProductToDelete = await productModel.findOne({ _id: id });
 

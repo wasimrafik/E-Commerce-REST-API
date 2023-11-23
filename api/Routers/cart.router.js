@@ -2,16 +2,19 @@ import express from "express";
 import {
   getCart,
   addCart,
-  updateCart,
   deleteCart,
-  updateQuantity,
+  updateCartQuantity,
 } from "../Controllers/cart.controllers";
 import auth from "../Middleware/auth.middleware";
 const cartRouter = express.Router();
 
-cartRouter.get("/getCart/:cartID", auth, getCart);
-cartRouter.post("/addCart", auth, addCart);
-cartRouter.delete("/deleteCart/:cartID", auth, deleteCart);
-cartRouter.put("/updateQuantity/:cartID", auth, updateQuantity);
+// cartRouter.get("/getCart/:userID", auth, getCart);
+// cartRouter.post("/addCart/:userID", addCart);
+// cartRouter.delete("/deleteCart/:cartID", auth, deleteCart);
+cartRouter.get("/getCart/:userID",getCart);
+cartRouter.post("/addCartItems/:userID", addCart);
+cartRouter.put("/updateQuantityItems/:cartID",updateCartQuantity);
+cartRouter.delete("/deleteCart/:cartID", deleteCart);
+
 
 export default cartRouter;

@@ -1,18 +1,18 @@
-// import express from "express";
-// import {
-//   getProduct,
-//   getSingleProduct,
-//   addProduct,
-//   updateProduct,
-//   deleteProduct,
-// } from "../Controllers/products.controllers";
+import express from "express";
+import {
+  getProduct,
+  getSingleProduct,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+} from "../Controllers/products.controllers";
 
-// const productRouter = express.Router();
+const productRouter = express.Router();
 
-// productRouter.get("/getProduct", getProduct);
-// productRouter.get("/getSingleProduct/:product_id", getSingleProduct);
-// productRouter.post("/addProduct", addProduct);
-// productRouter.put("/updateProduct/:product_id", updateProduct);
-// productRouter.delete("/deleteProduct/:product_id", deleteProduct);
+productRouter.get("/getProduct", getProduct);
+productRouter.get("/getSingleProduct/:productID", getSingleProduct);
+productRouter.post("/addProduct", addProduct);
+productRouter.put("/updateProduct/:productID", updateProduct);
+productRouter.delete("/deleteProduct/:productID", deleteProduct);
 
-// export default productRouter;
+export default productRouter;

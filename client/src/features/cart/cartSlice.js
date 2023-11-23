@@ -1,43 +1,53 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchCount } from "./cartAPI";
-// import CartPage from "./CartPage";
+import { createSlice } from "@reduxjs/toolkit";
+import { addToCartAsync, deleteCartAsync, getCartAsync } from "./cartAPI";
+
 
 const initialState = {
-  value: 0,
+  // items: [],
+  cartItems:[],
   status: "idle",
 };
 
-export const incrementAsync = createAsyncThunk(
-  "counter/fetchCount",
-  async (amount) => {
-    const response = await fetchCount(amount);
-    return response.data;
-  }
-);
-
 export const cartSlice = createSlice({
-  name: "counter",
+  name: "cart",
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
+    removeItemFromCart: (state, action) => {
+      const deletionResponse = action.payload.Data;
+      console.log(action.payload.Data);
+      console.log(deletionResponse);
+      if (deletionResponse.acknowledged) {
+        state.cartItems = state.cartItems.filter(item => item._id !== action.meta.arg);
+      }
     },
   },
 
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
+      .addCase(addToCartAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
-        state.status = "idle";
-        state.value += action.payload;
-      });
+      .addCase(addToCartAsync.fulfilled, (state, action) => {
+        state.status = "Sucess";
+        state.cartItems = action.payload;
+      })
+      .addCase(getCartAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getCartAsync.fulfilled, (state, action) => {
+        state.status = "Sucess";
+        state.cartItems = action.payload;
+      })
+      .addCase(deleteCartAsync.fulfilled, (state, action) => {
+        state.status = "Success";
+        state.cartItems = action.payload.Data; 
+      })
   },
 });
 
-export const { increment } = cartSlice.actions;
+export const { removeItemFromCart } = cartSlice.actions;
 
-export const selectCount = (state) => state.counter.value;
+// export const selectCart = (state) => state.cart.items;
+export const getCart = (state) => state.cart.cartItems;
 
 export default cartSlice.reducer;

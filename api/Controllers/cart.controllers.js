@@ -1,17 +1,18 @@
 import cartModel from "../Models/cart.model";
-import productModel from "../Models/product.model";
 
 export const getCart = async (req, res) => {
   try {
-    const id = req.params.cartID;
+    const id = req.params.userID;
 
-    const getCart = await cartModel.find({ _id: id });
+    const getUserCart = await cartModel
+      .find({ user: id })
+      .populate("products", "name price imageUrl");
 
-    if (getCart) {
+    if (getUserCart) {
       return res.status(200).json({
-        Data: getCart,
-        Message: "Fetch Cart Item",
-        result: getCart.length,
+        Data: getUserCart,
+        Message: "UserCart Get Sucessfully",
+        result: getUserCart.length,
       });
     }
   } catch (error) {
@@ -23,105 +24,50 @@ export const getCart = async (req, res) => {
 
 export const addCart = async (req, res) => {
   try {
-    const { userID, productID } = req.body;
+    const id = req.params.userID;
+    const { products, size, quantity, color } = req.body;
 
-    const productData = await productModel.findOne({ _id: productID });
-
-    console.log(productData);
-    const existsCartData = await cartModel.findOne({
-      productID: productID,
-      userID: userID,
+    const addCartItems = new cartModel({
+      user: id,
+      products,
+      size,
+      quantity,
+      color,
     });
-    console.log(userID, productID);
 
-    if (existsCartData) {
-      let quantity = existsCartData.quantity + 1;
-      let price = productData.price * quantity;
+    const savedCartItem = await addCartItems.save();
 
-      console.log(quantity, "quan");
-
-      let updatedItem = await cartModel.updateOne(
-        {
-          _id: existsCartData._id,
-        },
-        {
-          $set: {
-            quantity: quantity,
-            price: price,
-          },
-        }
-      );
-
-      if (updatedItem.acknowledged) {
-        return res.status(200).json({
-          message: "updated",
-        });
-      }
-    }
-    const cartData = new cartModel({
-      userID: userID,
-      productID: productID,
-      name: productData.Name,
-      price: productData.price,
-      quantity: 1,
-      image: productData.Thumbnail,
-    });
-    cartData.save();
-
-    console.log(cartData, "cartDAta");
-    if (cartData) {
-      return res.status(201).json({ Data: cartData, Message: "Cart Data" });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      Message: error.message,
-    });
-  }
-};
-
-export const deleteCart = async (req, res) => {
-  try {
-    const id = req.params.cartID;
-
-    let deleteCartItems = await cartModel.deleteOne({ _id: id });
-
-    if (deleteCartItems.acknowledged) {
+    if (savedCartItem) {
       return res.status(200).json({
-        data: deleteCartItems,
-        message: "Cart Deleted Sucessfully",
+        Data: savedCartItem,
+        Message: "Cart Item added successfully",
       });
     }
   } catch (error) {
     return res.status(500).json({
-      Data: deleteCart,
       Message: error.message,
     });
   }
 };
 
-export const updateQuantity = async (req, res) => {
+export const updateCartQuantity = async (req, res) => {
   try {
     const id = req.params.cartID;
-    const { productID } = req.body;
+
     const { updateTypeRequest } = req.query;
 
-    const cartData = await cartModel.findOne({ _id: id });
-    const productData = await productModel.findOne({ _id: productID });
+    // console.log(updateTypeRequest,"Test");
+    const getcart = await cartModel.findOne({ _id: id });
+    // console.log(getcartItems,"Test");
 
-    if (!cartData) {
+    if (!getcartItems) {
       return res.status(404).json({
-        Message: "Cart item not found",
+        Message: "CartItem not found",
       });
     }
 
-    if (!productData) {
-      return res.status(404).json({
-        Message: "Product not found",
-      });
-    }
-
-    let quantity = cartData.quantity;
-    let price = productData.price;
+    let quantity = getcart.quantity;
+    let price = getcart.price;
 
     if (updateTypeRequest === "increment") {
       if (quantity >= 10) {
@@ -136,7 +82,7 @@ export const updateQuantity = async (req, res) => {
       if (quantity <= 1) {
         let removeQuantity = await cartModel.deleteOne({ _id: id });
         if (removeQuantity.acknowledged) {
-          return res.status(200).json({Message: "Cart Item Removed"});
+          return res.status(200).json({ Message: "Cart Item Removed" });
         }
       } else {
         quantity -= 1;
@@ -144,21 +90,40 @@ export const updateQuantity = async (req, res) => {
       }
     }
 
-    let updatedItem = await cartModel.updateOne(
+    const updateFields = {
+      quantity,
+      price,
+    };
+    let updatedCartItem = await cartModel.findOneAndUpdate(
       {
         _id: id,
       },
-      {
-        $set: {
-          quantity: quantity,
-          price: price,
-        },
-      }
+      updateFields,
+      { new: true }
     );
 
-    if (updatedItem.acknowledged) {
+    return res.status(200).json({
+      Data: updatedCartItem,
+      message: "updated",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
+
+export const deleteCart = async (req, res) => {
+  try {
+    const id = req.params.cartID;
+
+    const deleteCartItem = await cartModel.deleteOne({ _id: id });
+
+    if (deleteCartItem.acknowledged) {
       return res.status(200).json({
-        message: "updated",
+        Data: deleteCartItem,
+        Message: "Address Deleted Sucessfully",
+        result: deleteCartItem.length,
       });
     }
   } catch (error) {

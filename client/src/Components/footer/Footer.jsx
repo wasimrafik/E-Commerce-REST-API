@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <div className="mt-10">
+    <div className="mt-10 bg-black text-white text-center">
       <div class="grid grid-rows-1 grid-flow-col gap-4 bg-black text-white text-center mt-10 pt-10">
        <div>
        <div className="gap-3 ">
@@ -27,6 +27,15 @@ const Footer = () => {
           <div><button  className=" hover:bg-white hover:text-black p-2 rounded-lg">Terms</button>  </div>
           <div><button  className=" hover:bg-white hover:text-black p-2 rounded-lg mb-10">Policy</button>  </div>
         </div>
+      </div>
+
+      <div>
+          <div>
+          © 2023 Jagrals Fashion - Andheri, Versova. ALL RIGHTS RESERVED.
+
+          
+          </div>
+          <div className="my-2 ">Designed by Wasim Jagrala</div>
       </div>
     </div>
   );
