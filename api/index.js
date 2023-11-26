@@ -8,7 +8,6 @@ import cartRouter from "./Routers/cart.router";
 import cors from 'cors';
 import cookieParser from 'cookie-parser'
 import {connectDB} from './Config/db'
-import orderItemsRouter from "./Routers/orderItem.router";
 import addressRouter from "./Routers/address.router";
 
 const app = express();
@@ -36,7 +35,6 @@ app.use(cors({
 
 app.use("/user", userRouter);
 app.use("/product", productRouter);
-app.use('/orderItems', orderItemsRouter)
 app.use("/order", orderRouter);
 app.use("/category", categoryRouter);
 app.use("/cart", cartRouter);

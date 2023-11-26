@@ -1,28 +1,18 @@
 import orderModel from "../Models/order.model";
-import orderItemsModel from "../Models/orderItems.model";
-import addressModel from "../Models/adresses.model";
 import userModel from "../Models/user.moduel";
-import adressesModel from "../Models/adresses.model";
 
-export const getOrder = async (req, res) => {
+
+export const getSingleOrder = async (req, res) => {
   try {
     const userID = req.params.userID;
-    const getOrderDetails = await orderModel.aggregate([
-      {
-        $lookup: {
-          from: "orderItems",
-          localField: "orderItems",
-          foreignField: "_id",
-          as: "orderItems",
-        },
-      },
-      { $unwind: "$orderItems" },
-    ]);
 
-    const getOrderById = await orderModel.find({ user: userID });
+    const getOrderById = await orderModel.find({ user: userID }).populate({
+      path: 'cart',
+      model: 'cart',
+    });
     console.log(getOrderById);
 
-    if (getOrderById !== null) {
+    if (getOrderById) {
       return res.status(200).json({
         Data: getOrderById,
         Message: "Order Details Get Successfully",
@@ -33,7 +23,6 @@ export const getOrder = async (req, res) => {
         Message: "Empty",
       });
     }
-    console.log("test13");
   } catch (error) {
     return res.status(500).json({
       Message: error.message,
@@ -41,86 +30,90 @@ export const getOrder = async (req, res) => {
   }
 };
 
+
+// aggrigate 
+
+export const getOrder = async (req, res) => {
+  try {
+    const getOrderById = await orderModel.aggregate([
+
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products',
+          foreignField: '_id',
+          as: 'products',
+        },
+      },
+      {
+        $unwind: '$products',
+      },
+      {
+        $lookup: {
+          from: 'carts',
+          localField: 'cart',
+          foreignField: '_id',
+          as: 'cart',
+        },
+      },
+      {
+        $unwind: '$cart',
+      },
+    ]);
+
+    if (getOrderById.length > 0) {
+      return res.status(200).json({
+        Data: getOrderById,
+        Message: 'Order Details Get Successfully',
+        result: getOrderById.length,
+      });
+    } 
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
+
+
+
+
 export const addOrder = async (req, res) => {
   try {
-    const userId = req.params.userID;
 
+    const userID = req.params.userID;
     const {
-      orderItems,
       shippingAddress,
       paymentMethod,
-      transactionID,
-      paymentID,
-      paymentStatus,
       totalPrice,
-      totalDiscountedPrice,
-      discount,
-      orderStatus,
       totalItem,
+      products,
+      cart,
     } = req.body;
 
-    let address;
-
-    const getUser = await userModel.findOne({ _id: userId });
+    const getUser = await userModel.findOne({ _id: userID });
 
     if (!getUser) {
       return res.status(400).json({ Message: "No User found, Please log in." });
     }
 
-    if (shippingAddress) {
-      let isExist = await addressModel.findOne({ shippingAddress: id });
-      address = isExist;
-    } else {
-      const { name, streetAddress, city, state, pincode, mobile } = req.body;
-
-      const addAddress = new adressesModel({
-        name,
-        streetAddress,
-        city,
-        state,
-        pincode,
-        mobile,
-      });
-
-      await addAddress.save();
-
-      address = addAddress._id;
-    }
-
-    console.log(address);
-
-    const getOrderItems = await orderItemsModel.find({
-      _id: { $in: orderItems },
-    });
-
-    if (getOrderItems.length !== orderItems.length) {
-      return res.status(400).json({
-        Message:
-          "Some order items were not found. Please select valid order items.",
-      });
-    }
-
-    const addorderDetails = new orderModel({
-      user: userId,
-      orderItems: getOrderItems.map((item) => item._id),
-      shippingAddress: address,
+    const addOrderDetails = new orderModel({
+      shippingAddress,
+      totalPrice,
+      totalItem,
+      user: userID,
+      cart,
+      products,
       paymentDetails: {
         paymentMethod,
-        transactionID,
-        paymentID,
-        paymentStatus,
       },
-      totalPrice,
-      totalDiscountedPrice,
-      discount,
-      orderStatus,
-      totalItem,
     });
 
-    await addorderDetails.save();
+    await addOrderDetails.save();
 
     return res.status(201).json({
-      Data: addorderDetails,
+      orderID: addOrderDetails.orderID,
+      Data: addOrderDetails,
       Message: "Order Details successfully added.",
     });
   } catch (error) {
@@ -130,19 +123,20 @@ export const addOrder = async (req, res) => {
   }
 };
 
+
 export const UpdateOrder = async (req, res) => {
   const id = req.params.orderID;
 
   try {
     const {
+      shippingAddress,
       totalPrice,
-      totalDiscountedPrice,
-      discount,
       orderStatus,
       totalItem,
+      products,
+      paymentMethod,
       transactionID,
       paymentID,
-      paymentMethod,
       paymentStatus,
     } = req.body;
 
@@ -153,9 +147,9 @@ export const UpdateOrder = async (req, res) => {
         paymentID,
         paymentStatus,
       },
+      shippingAddress,
+      products,
       totalPrice,
-      totalDiscountedPrice,
-      discount,
       orderStatus,
       totalItem,
     };
@@ -163,7 +157,7 @@ export const UpdateOrder = async (req, res) => {
     const updateorderDetails = await orderModel.findOneAndUpdate(
       { _id: id },
       updateFields,
-      { new: true } 
+      { new: true }
     );
 
     if (updateorderDetails) {

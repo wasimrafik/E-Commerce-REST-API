@@ -7,25 +7,13 @@ const orders = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
   },
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
+  products: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "products",
   },
-  size: {
-    type: String,
-  },
-  quantity: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  discountedPrice: {
-    type: Number,
-    default: 0,
+  cart: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "cart",
   },
   orderDate: {
     type: Date,
@@ -53,21 +41,13 @@ const orders = new Schema({
   },
   totalPrice: {
     type: Number,
-    required: true,
   },
-  totalDiscountedPrice: {
-    type: Number,
-    default: 0,
-  },
-
   orderStatus: {
     type: String,
-    required: true,
     default: "pending",
   },
   totalItem: {
     type: Number,
-    required: true,
   },
   createdAt: {
     type: Date,

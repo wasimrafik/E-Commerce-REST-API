@@ -4,9 +4,11 @@ export const getCart = async (req, res) => {
   try {
     const id = req.params.userID;
 
-    const getUserCart = await cartModel
-      .find({ user: id })
-      .populate("products", "name price imageUrl");
+      const getUserCart = await cartModel.find({ user: id }).populate({
+        path: 'products',
+        model: 'products',
+      });
+      // .populate("products", "name price imageUrl");
 
     if (getUserCart) {
       return res.status(200).json({

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { checkout, selectAddress } from "../../features/checkOut/checkOutSlice";
 import {
   addAddressAsync,
+  addOrder,
   deleteAddressAsync,
   fetchAllAddressAsync,
 } from "../../features/checkOut/checkOutAPI";
@@ -17,8 +18,8 @@ import { deleteCartAsync } from "../../features/cart/cartAPI";
 
 const CheckOutPage = () => {
   const [total, setTotal] = useState(0);
-  const [addressID, setAddressID] = useState('')
-  const [paymentOptions, setPaymentOptions] = useState('')
+  const [addressID, setAddressID] = useState("");
+  const [paymentOptions, setPaymentOptions] = useState("");
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -27,7 +28,6 @@ const CheckOutPage = () => {
   const user = useSelector(selectLoggedInUser);
   const navigate = useNavigate();
   const cart = useSelector(getCart);
-
 
   const {
     register,
@@ -45,15 +45,14 @@ const CheckOutPage = () => {
     }
   };
 
-
   const calculateSubTotal = () => {
-    if(cart && cart.Data){
+    if (cart && cart.Data) {
       return cart.Data.reduce((subtotal, product) => {
         return subtotal + product.products.price * product.quantity;
-      }, 0)
+      }, 0);
     }
     return 0;
-  }
+  };
 
   const subtotal = calculateSubTotal();
 
@@ -79,21 +78,42 @@ const CheckOutPage = () => {
 
   const handleDeleteAddress = (address) => {
     console.log("delete Address", address._id);
-    dispatch(deleteAddressAsync(address._id))
-    fetchAddresses()
-  }
+    dispatch(deleteAddressAsync(address._id));
+    fetchAddresses();
+  };
 
-const handleSelectAddress = (address) => {
-  console.log(address._id);
-  setAddressID(address._id)
-} 
-// const getPaymentOption = (option) => {
-//   console.log("Selected payment option:", option);
-//   setPaymentOPtions(option); // Assuming you have a state variable for payment options
-// };
+  const handleSelectAddress = (address) => {
+    console.log(address._id);
+    setAddressID(address._id);
+  };
+  // const getPaymentOption = (option) => {
+  //   console.log("Selected payment option:", option);
+  //   setPaymentOPtions(option); // Assuming you have a state variable for payment options
+  // };
 
-console.log(cart.Data[0].user);
-return (
+  // console.log(cart.Data[0].user);
+
+  const handleCreateOrder = async () => {
+    // console.log(cart.Data);
+    const cartData = cart.Data.map((items) => items._id);
+    const productData = cart.Data.map((items) => items.products._id);
+    console.log(productData);
+    const orderData = {
+      addressID: addressID,
+      paymentOptions: paymentOptions,
+      userID: cart.Data[0].user,
+      totalPrice: subtotal,
+      totalItem: cart.Data.length,
+      products: productData,
+      cart: cartData,
+    };
+    console.log(orderData);
+
+    await dispatch(addOrder({ userID: cart.Data[0].user, data: orderData }));
+
+    navigate("/OrderConfrimationPage")
+  };
+  return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
       <div className="border-b border-gray-900/10 pb-12">
         <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -149,7 +169,8 @@ return (
                   </p>
                 </div>
                 <div className="">
-                  <button className="bg-red-500 p-2 px-4 rounded-xl"
+                  <button
+                    className="bg-red-500 p-2 px-4 rounded-xl"
                     onClick={() => handleDeleteAddress(address)}
                   >
                     Delete
@@ -189,11 +210,11 @@ return (
                       id="cash"
                       type="radio"
                       name="payment"
-                      value="Cash"        
-                      onChange={(e) => setPaymentOptions(e.target.value)}                                  
+                      value="Cash"
+                      onChange={(e) => setPaymentOptions(e.target.value)}
                       className="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    
+
                     <label className="mt-1 text-sm leading-6 text-gray-600">
                       Cash
                     </label>
@@ -206,11 +227,11 @@ return (
                       id="Card"
                       type="radio"
                       name="payment"
-                      value="Card" 
-                      onChange={(e) => setPaymentOptions(e.target.value)}                                     
+                      value="Card"
+                      onChange={(e) => setPaymentOptions(e.target.value)}
                       className="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    
+
                     <label className="mt-1 text-sm leading-6 text-gray-600">
                       Card Payment
                     </label>
@@ -280,12 +301,12 @@ return (
                   <p>${subtotal}</p>
                 </div>
                 <div className="mt-6">
-                  <Link
-                    to="/pay"
+                  <button
+                    onClick={handleCreateOrder}
                     className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                   >
-                    Pay and Order
-                  </Link>
+                    Place Your Order
+                  </button>
                 </div>
                 <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                   <p>

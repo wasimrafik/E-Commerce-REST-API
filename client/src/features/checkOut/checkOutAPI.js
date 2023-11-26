@@ -47,9 +47,11 @@ export const deleteAddressAsync = createAsyncThunk(
 
 export const addOrder = createAsyncThunk(
   "addOrder",
-  async (productID) => {
+  async ({userID, data}) => {
+    console.log(data);
     try {
-    const response = await axios.get(`/order/addOrder/${productID}`)  
+    const response = await axios.post(`/order/addOrder/${userID}`, data) 
+    console.log(response.data); 
     return response.data.Data;
     } catch (error) {
       return (error)
@@ -57,6 +59,22 @@ export const addOrder = createAsyncThunk(
   }
 )
 
+export const findOrderAsync = createAsyncThunk(
+  'findOrder',
+  async (userID) => {
+    console.log(userID);
+      try {
+        const response = axios.get(`/order/getSingleOrder/${userID}`)
+        .then((res) => {
+          console.log(res.data.Data)
+        })
+        console.log(response);
+        return response
+      } catch (error) {
+        return error.message
+      }
+  }
+)
 // export function fetchProductsByFilter(filter) {
 
 //   let queryFilter = ''

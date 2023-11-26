@@ -299,7 +299,7 @@ const ProductsDetails = () => {
         return (
           <RadioGroup.Option
             key={colorOption.name}
-            value={colorOption}
+            value={colorOption.name}
             className={({ active, checked }) =>
               classNames(
                 colorOption.selectedClass,
@@ -350,7 +350,7 @@ const ProductsDetails = () => {
                               product.products.size.map((size) => (
                                 <RadioGroup.Option
                                   key={size.name}
-                                  value={size}
+                                  value={size.name}
                                   disabled={!size.quantity}
                                   className={({ active }) =>
                                     classNames(

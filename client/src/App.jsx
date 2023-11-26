@@ -17,6 +17,7 @@ import { selectLoggedInUser } from "./features/auth/authSlice";
 import { getCart } from "./features/cart/cartSlice";
 import { getCartAsync } from "./features/cart/cartAPI";
 import Address from "./Components/checkOut/Address";
+import SuccessPage from "./Components/checkOut/confirmationPage/SuccessPage";
 
 
 axios.defaults.baseURL = "http://localhost:8001/";
@@ -47,6 +48,7 @@ function App() {
           <Route path="/checkout" element={<CheckOutPage />} />
           <Route path="/product/getSingleProduct/:filterParams" element={<ProductsDetails />} />
           <Route path="/checkout/getAddress" element={<Address />} />
+          <Route path="/OrderConfrimationPage" element={<SuccessPage />} />
           <Route path="*" element={<PageNotFound />} />
           </Route>
 
@@ -55,6 +57,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="*" element={<PageNotFound />} />
+
           </Route>
           
       </Routes>

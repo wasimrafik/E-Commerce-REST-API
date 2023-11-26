@@ -19,7 +19,10 @@ import {
   useParams,
 } from "react-router-dom";
 import { selectAllProducts } from "../../features/productList/ProductListSlice";
-import { fetchAllProductsAsync, fetchSingleProduct } from "../../features/productList/ProductListAPI";
+import {
+  fetchAllProductsAsync,
+  fetchSingleProduct,
+} from "../../features/productList/ProductListAPI";
 import axios from "axios";
 import Pagination from "../pagination/Pagination";
 
@@ -82,6 +85,11 @@ export default function ProductList() {
   const [filterData, setFilterData] = useState([]);
   const [searchParams, setSearchParams] = useState([]);
   const [checked, setChecked] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [productpage, setProductPage] = useState([]);
+
+  const productPerPage = 21;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -142,7 +150,6 @@ export default function ProductList() {
       });
   };
 
-
   const handlerID = (product) => {
     const productID = product._id;
     console.log(productID);
@@ -151,12 +158,30 @@ export default function ProductList() {
     //  const singleProduct = res.data.Data;
     //  console.log(singleProduct);
 
-      // navigate()
+    // navigate()
     // })
-    dispatch(fetchSingleProduct(productID))
+    dispatch(fetchSingleProduct(productID));
   };
   console.log("filterParams:", filterParams);
 
+  useEffect(() => {
+    console.log(products.length);
+    if (products.length > 0) {
+      setTotalProducts(products.length)
+      const fetchProducts = () => {
+        const startIndex = (currentPage - 1) * productPerPage;
+        const lastIndex = startIndex + productPerPage;
+        const currentProductPage = products.slice(startIndex, lastIndex);
+        console.log(currentProductPage);
+        setProductPage(currentProductPage);
+      };
+      fetchProducts();
+    } else {
+      <div>....Loading</div>;
+    }
+  }, [products, currentPage]);
+
+  console.log(productpage);
 
   return (
     <div>
@@ -431,7 +456,9 @@ export default function ProductList() {
                         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                           {filterData.length > 0 && checked === true
                             ? filterData.map((product) => (
-                                <Link to={`/product/getSingleProduct/${product._id}`}>
+                                <Link
+                                  to={`/product/getSingleProduct/${product._id}`}
+                                >
                                   <button
                                     key={product.id}
                                     onClick={(e) => handlerID(product)}
@@ -480,8 +507,10 @@ export default function ProductList() {
                                   </button>
                                 </Link>
                               ))
-                            : products.map((product) => (
-                                <Link to={`/product/getSingleProduct/${product._id}`}>
+                            : productpage.map((product) => (
+                                <Link
+                                  to={`/product/getSingleProduct/${product._id}`}
+                                >
                                   <button
                                     key={product.id}
                                     onClick={(e) => handlerID(product)}
@@ -546,7 +575,11 @@ export default function ProductList() {
 
                 {/* Pagination Starts here */}
                 <div className="mt-10">
-                  <Pagination />
+                  <Pagination
+                    currentPage={currentPage}
+                    setPage={setCurrentPage}
+                    totalProducts={totalProducts}
+                  />
                 </div>
               </section>
             </main>
