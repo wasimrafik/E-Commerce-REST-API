@@ -1,40 +1,53 @@
-import { Fragment, useEffect } from 'react';
-import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Fragment, useEffect } from "react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
   ShoppingCartIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { getCart } from '../../features/cart/cartSlice';
-
+} from "@heroicons/react/24/outline";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getCart } from "../../features/cart/cartSlice";
+import Cookies from 'js-cookie';
+import { logoutUser } from "../../features/auth/authAPI";
 
 
 const navigation = [
-  { name: 'Home', link: '/home', user: true },
-  { name: 'Products', link: '/products', admin: true },
-  { name: 'Orders', link: '/productDetails', admin: true },
+  { name: "Home", link: "/home", user: true },
+  { name: "Products", link: "/products", admin: true },
 ];
 const userNavigation = [
-  { name: 'My Profile', link: '/profile' },
-  { name: 'My Orders', link: '/my-orders' },
-  { name: 'Sign out', link: '/logout' },
+  { name: "My Profile" },
+  { name: "My Orders" },
+  { name: "Sign out" },
 ];
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 function NavBar({ children }) {
   const items = useSelector(getCart);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   useEffect(() => {
     console.log(items?.Data?.length);
-  },[items])
+  }, [items]);
 
-
-
+  const handleNavigate = (item) => {
+    console.log(item);
+    if(item === "My Profile"){
+      navigate('/profilePage')
+    }
+    if(item === "My Orders"){
+      navigate('/myOrders')
+    }
+    if(item === "Sign out"){
+      dispatch(logoutUser())
+      navigate('/login')
+    }
+  }
   return (
     <>
       <div className="min-h-full">
@@ -46,32 +59,31 @@ function NavBar({ children }) {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <Link to="/">
-                        <img
+                        {/* <img
                           className="h-8 w-8"
                           src="/ecommerce.png"
                           alt="Your Company"
-                        />
+                        /> */}
+                        <h1 className="text-xl text-white font-bold"> Jagrala's Garment</h1>
                       </Link>
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
-                        {navigation.map((item) =>
-                           (
-                            <Link
-                              key={item.name}
-                              to={item.link}
-                              className={classNames(
-                                item.current
-                                  ? 'bg-gray-900 text-white'
-                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                'rounded-md px-3 py-2 text-sm font-medium'
-                              )}
-                              aria-current={item.current ? 'page' : undefined}
-                            >
-                              {item.name}
-                            </Link>
-                          )
-                        )}
+                        {navigation.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.link}
+                            className={classNames(
+                              item.current
+                                ? "bg-gray-900 text-white"
+                                : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                              "rounded-md px-3 py-2 text-sm font-medium"
+                            )}
+                            aria-current={item.current ? "page" : undefined}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -120,15 +132,15 @@ function NavBar({ children }) {
                             {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
-                                  <Link
-                                    to={item.link}
+                                  <button
+                                  onClick={() => handleNavigate(item.name)}
                                     className={classNames(
-                                      active ? 'bg-gray-100' : '',
-                                      'block px-4 py-2 text-sm text-gray-700'
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
                                     )}
                                   >
                                     {item.name}
-                                  </Link>
+                                  </button>
                                 )}
                               </Menu.Item>
                             ))}
@@ -166,11 +178,11 @@ function NavBar({ children }) {
                       href={item.href}
                       className={classNames(
                         item.current
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                        'block rounded-md px-3 py-2 text-base font-medium'
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                        "block rounded-md px-3 py-2 text-base font-medium"
                       )}
-                      aria-current={item.current ? 'page' : undefined}
+                      aria-current={item.current ? "page" : undefined}
                     >
                       {item.name}
                     </Disclosure.Button>
@@ -213,14 +225,13 @@ function NavBar({ children }) {
                   </div>
                   <div className="mt-3 space-y-1 px-2">
                     {userNavigation.map((item) => (
-                      <Disclosure.Button
+                      <button
                         key={item.name}
-                        as="a"
-                        href={item.href}
+                        onClick={() => handleNavigate(item.name)}
                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                       >
                         {item.name}
-                      </Disclosure.Button>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -231,9 +242,7 @@ function NavBar({ children }) {
 
         <header className="bg-white shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              E-Commerce
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900"></h1>
           </div>
         </header>
         <main>

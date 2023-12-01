@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addAddressAsync, addOrder, deleteAddressAsync, fetchAllAddressAsync, findOrderAsync } from "./checkOutAPI";
+import { addAddressAsync, addOrder, deleteAddressAsync, fetchAllAddressAsync, findOrderAsync, findOrderByUser } from "./checkOutAPI";
 
 const initialState = {
   checkout: [],
@@ -44,14 +44,14 @@ export const checkOutSlice = createSlice({
         state.status = "Success";
         state.addresses = state.addresses.filter(address => address._id !== action.payload);
       })
-      // .addCase(findOrderAsync.pending, (state) => {
-      //   state.status = "loading";
-      // })
-      // .addCase(findOrderAsync.fulfilled, (state, action) => {
-      //   state.status = "Sucess";
-      //   state.checkout = action.payload;
-      //   state.orders = action.payload?.orderID;
-      // });
+      .addCase(findOrderByUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(findOrderByUser.fulfilled, (state, action) => {
+        state.status = "Sucess";
+        state.checkout = action.payload;
+        state.orders = action.payload;
+      });
       
   },
 });

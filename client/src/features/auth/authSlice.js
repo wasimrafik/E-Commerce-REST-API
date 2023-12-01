@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createUserAsync, getLoginUserAsync } from "./authAPI";
+import { createUserAsync, getLoginUserAsync, logoutUser } from "./authAPI";
 
 const initialState = {
   status: false,
@@ -35,6 +35,14 @@ export const LoginPages = createSlice({
       .addCase(getLoginUserAsync.rejected, (state, action) => {
         state.status = false;
         state.error = action.error;
+        state.isLoading = false;
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.status = false;
+        state.isLoading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.status = false;
         state.isLoading = false;
       });
   },

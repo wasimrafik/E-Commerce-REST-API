@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
       return res.status(500).json({
         Message: "Invalid DecodeToken",
       });
-    }
+    } 
   } catch (error) {
     return res.status(500).json({
       message: error.message,

@@ -54,6 +54,25 @@ export const getUser = async (req, res) => {
   }
 };
 
+export const getSingleUser = async (req, res) => {
+  try {
+
+    const id = req.params.userID;
+    
+    const user = await userModels.findOne({_id: id});
+    if (user) {
+      return res.status(200).json({
+        data: user,
+        Message: "User Data Fetched",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
+
 export const addUser = async (req, res) => {
   try {
 
@@ -91,7 +110,7 @@ export const updateUser = async (req, res) => {
     const imageUpload = upload.single("avatar");
     imageUpload(req, res, async function (err) {
       const id = req.params.user_id;
-      const { name, email, password, mobile } = req.body;
+      const { name, email, mobile } = req.body;
 
       const findUser = await userModels.findOne({ _id: id });
       let avatar = findUser.avatar;
@@ -105,9 +124,10 @@ export const updateUser = async (req, res) => {
         }
       }
 
-      const passToString = password.toString();
 
-    const encrpytPassword = bcrypt.hashSync(passToString, 10);
+    //   const passToString = password.toString();
+
+    // const encrpytPassword = bcrypt.hashSync(passToString, 10);
 
       const userUpdateRecord = await userModels.updateOne(
         { _id: id },
@@ -115,7 +135,7 @@ export const updateUser = async (req, res) => {
           $set: {
             name,
             email,
-            password: encrpytPassword,
+            // password: encrpytPassword,
             mobile,
             avatar,
           },
@@ -262,6 +282,19 @@ export const logIn = async (req, res) => {
       Data: checkUser._id,
       token: token,
       Message: "Sucessfully Login",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      Message: error.message,
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    return res.cookie("token", '').json({
+      token: "",
+      Message: "Sucessfully Logout",
     });
   } catch (error) {
     return res.status(500).json({

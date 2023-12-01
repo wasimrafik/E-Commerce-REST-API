@@ -75,17 +75,16 @@ export const findOrderAsync = createAsyncThunk(
       }
   }
 )
-// export function fetchProductsByFilter(filter) {
 
-//   let queryFilter = ''
-//   for(let key in filter){
-//     queryFilter += `${key}=${filter[key]}&`
-//   }
-//   return new Promise(async (resolve) => {
-//     const response = await fetch("http://localhost:8001/product/getProduct?"+queryFilter);
-//     // console.log(response);
-//     const dataAll = await response.json();
-//     const data = dataAll.Data;
-//     resolve({ data });
-//   });
-// }
+export const findOrderByUser = createAsyncThunk(
+  'findOrderByUser',
+  async (userID) => {
+    try {
+        const response = await axios.get(`/order/getOrderByUser/${userID}`);
+        console.log(response.data);
+        return response.data.Data;
+    } catch (error) {
+      return error.message
+    }
+  }
+)

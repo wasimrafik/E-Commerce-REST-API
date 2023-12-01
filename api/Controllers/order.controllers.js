@@ -1,14 +1,12 @@
 import orderModel from "../Models/order.model";
-import userModel from "../Models/user.moduel";
-
 
 export const getSingleOrder = async (req, res) => {
   try {
     const userID = req.params.userID;
 
     const getOrderById = await orderModel.find({ user: userID }).populate({
-      path: 'cart',
-      model: 'cart',
+      path: "cart",
+      model: "cart",
     });
     console.log(getOrderById);
 
@@ -30,44 +28,79 @@ export const getSingleOrder = async (req, res) => {
   }
 };
 
+// export const getOrderByUser = async (req, res) => {
+//   try {
+//     const userID = req.params.userID;
 
-// aggrigate 
+//     const getOrderById = await orderModel.find({ user: userID }) // Assuming 'user' is a reference to the 'users' collection
+//       .populate({
+//         path: 'products',
+//         model: 'products', 
+//       })
+//       // .populate({
+//       //   path: 'cart',
+//       //   model: 'cart',
+//       // })
+//     console.log(getOrderById);
 
-export const getOrder = async (req, res) => {
+//     if (getOrderById) {
+//       return res.status(200).json({
+//         Data: getOrderById,
+//         Message: "Order Details Get Successfully",
+//         result: getOrderById.length,
+//       });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({
+//       Message: error.message,
+//     });
+//   }
+// };
+
+// aggrigate
+
+export const getOrderByUser = async (req, res) => {
   try {
+    const id = req.params.userID;
+    console.log(id);
     const getOrderById = await orderModel.aggregate([
-
       {
         $lookup: {
-          from: 'products',
-          localField: 'products',
-          foreignField: '_id',
-          as: 'products',
+          from: "products",
+          localField: "products",
+          foreignField: "_id",
+          as: "products",
         },
       },
       {
-        $unwind: '$products',
+        $unwind: "$products",
       },
       {
         $lookup: {
-          from: 'carts',
-          localField: 'cart',
-          foreignField: '_id',
-          as: 'cart',
+          from: "carts",
+          localField: "cart",
+          foreignField: "_id",
+          as: "carts",
         },
       },
       {
-        $unwind: '$cart',
+        $unwind: "$carts",
       },
+      {$match: {user: id}}
     ]);
 
-    if (getOrderById.length > 0) {
+    console.log(getOrderById);
+    if (getOrderById) {
       return res.status(200).json({
         Data: getOrderById,
-        Message: 'Order Details Get Successfully',
+        Message: "Order Details Get Successfully",
         result: getOrderById.length,
       });
-    } 
+    } else {
+      return res.status(404).json({
+        Message: "No orders found for the specified user.",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       Message: error.message,
@@ -75,12 +108,8 @@ export const getOrder = async (req, res) => {
   }
 };
 
-
-
-
 export const addOrder = async (req, res) => {
   try {
-
     const userID = req.params.userID;
     const {
       shippingAddress,
@@ -122,7 +151,6 @@ export const addOrder = async (req, res) => {
     });
   }
 };
-
 
 export const UpdateOrder = async (req, res) => {
   const id = req.params.orderID;

@@ -18,6 +18,8 @@ import { getCart } from "./features/cart/cartSlice";
 import { getCartAsync } from "./features/cart/cartAPI";
 import Address from "./Components/checkOut/Address";
 import SuccessPage from "./Components/checkOut/confirmationPage/SuccessPage";
+import ProfilePage from "./Components/profile/ProfilePage";
+import OrderDetails from "./Components/userOrderDetails/OrderDetailsPage";
 
 
 axios.defaults.baseURL = "http://localhost:8001/";
@@ -43,12 +45,15 @@ function App() {
         <Routes>
            <Route path="/" element={<ProtectedRoutes />}>
           <Route path='/home' element={<Home /> } />
+          <Route path='/' element={<Home /> } />
           <Route path="/products" element={<ProductList />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckOutPage />} />
           <Route path="/product/getSingleProduct/:filterParams" element={<ProductsDetails />} />
           <Route path="/checkout/getAddress" element={<Address />} />
           <Route path="/OrderConfrimationPage" element={<SuccessPage />} />
+          <Route path="/profilePage" element={<ProfilePage />} />
+          <Route path="/myOrders" element={<OrderDetails />} />
           <Route path="*" element={<PageNotFound />} />
           </Route>
 
